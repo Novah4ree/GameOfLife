@@ -1,5 +1,6 @@
 #include "App.h"
 #include "Window.h"
+
 wxIMPLEMENT_APP(App);
 
 App::App() {
