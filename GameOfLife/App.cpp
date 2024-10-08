@@ -1,5 +1,6 @@
 #include "App.h"
-#include "Window.h"
+#include "MainWindow.h"
+
 
 wxIMPLEMENT_APP(App);
 
@@ -12,7 +13,7 @@ App::~App() {
 }
 
 bool App::OnInit() {
-	Window* window = new Window();
+	MainWindow* window = new MainWindow();
 	window->Show();
 	return true;
 }
