@@ -132,12 +132,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="DrawingPanel.cpp" />
     <ClCompile Include="MainClass.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="DrawingPanel.h" />
     <ClInclude Include="MainClass.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Window.h" />
