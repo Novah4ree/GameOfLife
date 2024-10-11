@@ -7,11 +7,11 @@ class MainWindow :public wxFrame
 {
 private:
 	std::vector<int>* pNumbers;
-
+	DrawingPanel* drawingPanel = nullptr;
+	wxBoxSizer* _sizer = nullptr;
+	void OnSizeChanged(wxSizeEvent& event);
 public:
-	DrawingPanel *drawingPanel;
 	MainWindow();
 	~MainWindow();
-
 };
 

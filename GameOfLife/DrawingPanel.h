@@ -15,7 +15,6 @@ public:
 	//empty destructor
 	~DrawingPanel();
 	void OnPaint(wxPaintEvent& event);
-
-	bool operator==(const DrawingPanel& other) const;
+	void SetSize(const wxSize& size);
 };
 

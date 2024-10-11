@@ -3,11 +3,12 @@
 #include "wx/dcbuffer.h"
 
 
-DrawingPanel::DrawingPanel(wxFrame* parent) : wxPanel(parent, wxID_ANY, wxPoint(0, 0), wxSize(20, 30))
+DrawingPanel::DrawingPanel(wxFrame* parent) : wxPanel(parent, wxID_ANY, wxPoint(0, 0))
 {
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 	this->SetDoubleBuffered(true);
 	this->Bind(wxEVT_PAINT, &DrawingPanel::OnPaint, this);
+	
 }
 
 DrawingPanel::~DrawingPanel(){}
@@ -28,13 +29,14 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 	context->SetBrush(*wxTRANSPARENT_BRUSH);
 
 	// size of panel
-	int pWidth, pHeight;// this is the panel Height/width
+	int pWidth; int pHeight;// this is the panel Height/width
 
 	int cellSize = 10;
 	GetClientSize(&pWidth, &pHeight);
+
 	// cell size calculated
-	int cellWidth = pWidth / gridSize; //helps resize the cells width with the panel
-	int cellHeight = pHeight / gridSize;//helps resize the cells height with the panel
+	int cellWidth = pWidth / gridSize; //helps resize the cells width with the panel seperate
+	int cellHeight = pHeight / gridSize;//helps resize the cells height with the panel seperate
 	 
 	//draws the grid
 	for (int row = 0; row < gridSize; ++row) { //loop for roow
@@ -48,8 +50,10 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 	delete context;
 
 }
-
-bool DrawingPanel::operator==(const DrawingPanel& other) const
+void DrawingPanel::SetSize(const wxSize& size)
 {
-	return false;
+	wxPanel::SetSize(size);
+	Refresh(); //repaint
 }
+
+
