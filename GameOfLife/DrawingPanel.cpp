@@ -3,12 +3,13 @@
 #include "wx/dcbuffer.h"
 
 
+
 DrawingPanel::DrawingPanel(wxFrame* parent) : wxPanel(parent, wxID_ANY, wxPoint(0, 0))
 {
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 	this->SetDoubleBuffered(true);
 	this->Bind(wxEVT_PAINT, &DrawingPanel::OnPaint, this);
-	
+
 }
 
 DrawingPanel::~DrawingPanel(){}
@@ -35,14 +36,16 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 	GetClientSize(&pWidth, &pHeight);
 
 	// cell size calculated
-	int cellWidth = pWidth / gridSize; //helps resize the cells width with the panel seperate
-	int cellHeight = pHeight / gridSize;//helps resize the cells height with the panel seperate
-	 
+	float cellWidth = pWidth /(float) gridSize; //helps resize the cells width with the panel seperate
+	float cellHeight = pHeight /(float) gridSize;//helps resize the cells height with the panel seperate
+	//by change my int to float for cellwidth/ cellheight also added (float) in front of gridSize
+	// i was able to eliminate the extra gaps on the side and bottom of my game board.
 	//draws the grid
-	for (int row = 0; row < gridSize; ++row) { //loop for roow
+	for (int row = 0; row < gridSize; ++row) {//loop for roow
+		
 		for (int col = 0; col < gridSize; ++col) {// loop for column
-			int x = col * cellWidth;
-			int y = row * cellHeight;
+		    float x = col * cellWidth;
+			float y = row * cellHeight;
 			context->DrawRectangle(x, y, cellWidth, cellHeight);
 		}
 	}
@@ -57,3 +60,7 @@ void DrawingPanel::SetSize(const wxSize& size)
 }
 
 
+void DrawingPanel::setGridSize(int size)
+{
+	gridSize = size;
+}

@@ -7,14 +7,14 @@ class DrawingPanel : public wxPanel
 {
 
 private:
-	int gridSize = 15;
-
+	int gridSize;
+	std::vector<std::vector<bool>>gameBoard;
 public:
 
-	DrawingPanel(wxFrame* parent);
-	//empty destructor
 	~DrawingPanel();
+	DrawingPanel(wxFrame* parent); 
 	void OnPaint(wxPaintEvent& event);
 	void SetSize(const wxSize& size);
+	void setGridSize(int size);
 };
 
