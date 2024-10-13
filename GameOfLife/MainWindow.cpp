@@ -20,7 +20,6 @@ MainWindow::MainWindow() : wxFrame(nullptr, wxID_ANY, "Game of Life", wxPoint(10
 
 void MainWindow::OnSizeChanged(wxSizeEvent& event) {
 	wxSize newSize = event.GetSize();
-	event.Skip();
 	drawingPanel->SetSize(newSize);
 	drawingPanel->Refresh();
 }
