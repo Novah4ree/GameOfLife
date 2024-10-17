@@ -4,6 +4,7 @@
 #include "DrawingPanel.h"
 
 
+
 class MainWindow :public wxFrame
 {
  public:
@@ -22,8 +23,11 @@ private:
 	int generationCount; 
 	int livingCellsCount; 
 	wxBoxSizer* _sizer = nullptr;
-
-	
+	wxToolBar* toolBar;
+	void Play(wxCommandEvent& event);
+	void Pause(wxCommandEvent& event);
+	void Next(wxCommandEvent& event);
+	void Clear(wxCommandEvent& event);
 	wxDECLARE_EVENT_TABLE();
 	
 
