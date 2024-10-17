@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "DrawingPanel.h"
 
+
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 EVT_SIZE(MainWindow::OnSizeChanged)
@@ -9,7 +10,7 @@ wxEND_EVENT_TABLE()
 
 
 MainWindow::MainWindow() 
- : wxFrame(nullptr, wxID_ANY, "Game of Life", wxPoint(100,100), wxSize(500, 500)), gameBoard(gridSize, std::vector<bool>(gridSize, false)), generationCount(0), livingCellsCount(0) {
+ : wxFrame(nullptr, wxID_ANY, "Game of Life", wxPoint(100,100), wxSize(500, 500)), generationCount(0), livingCellsCount(0) {
    
 	
 
@@ -47,8 +48,12 @@ void MainWindow::initializeGrid() {
 }
 
 void MainWindow::updateStatusBar() const
-
 {
+	for (int i = 0; i < 10; ++i) {
+	
+		wxString status = wxString::Format("Generation :   \n" " Living Cells : \n",generationCount + i, livingCellsCount + i);
+		statusBar->SetStatusText(status);
+	}
 }
 MainWindow::~MainWindow()
 {
@@ -57,3 +62,4 @@ void Layout()
 {
 
 }
+ 

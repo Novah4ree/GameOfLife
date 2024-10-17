@@ -23,7 +23,7 @@ private:
 	int livingCellsCount; 
 	wxBoxSizer* _sizer = nullptr;
 
-
+	
 	wxDECLARE_EVENT_TABLE();
 	
 
