@@ -1,21 +1,31 @@
 #pragma once
 #include "wx/wx.h"
-#include "DrawingPanel.h"
 #include <vector>
+#include "DrawingPanel.h"
+
 
 class MainWindow :public wxFrame
 {
-private:
-	std::vector<int>* pNumbers;
-	DrawingPanel* drawingPanel = nullptr;
-	wxBoxSizer* _sizer = nullptr;
-	void OnSizeChanged(wxSizeEvent& event);
-	std::vector<std::vector<bool>> gameBoard;
-	int gridSize = 15;
-public:
-	
+ public:
 	MainWindow();
 	~MainWindow();
+
+private:
+	void OnSizeChanged(wxSizeEvent& event);
+	wxStatusBar* statusBar = nullptr;
 	void initializeGrid();
+	void updateStatusBar() const;
+	std::vector<wxSize>_sizes;
+	std::vector<std::vector<bool>> gameBoard;
+	int gridSize = 15;
+	DrawingPanel* drawingPanel = nullptr;
+	int generationCount; 
+	int livingCellsCount; 
+	wxBoxSizer* _sizer = nullptr;
+
+
+	wxDECLARE_EVENT_TABLE();
+	
+
 };
 
