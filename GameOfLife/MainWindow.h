@@ -2,7 +2,7 @@
 #include "wx/wx.h"
 #include <vector>
 #include "DrawingPanel.h"
-
+#include "GameSettings.h"
 
 
 class MainWindow :public wxFrame

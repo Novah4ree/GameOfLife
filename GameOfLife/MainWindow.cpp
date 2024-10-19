@@ -169,7 +169,7 @@ void MainWindow::GenerationCount() {
 }
 MainWindow::~MainWindow()
 {
-	
+	delete timer;
 }
 void Layout()
 {
