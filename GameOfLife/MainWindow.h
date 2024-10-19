@@ -14,9 +14,10 @@ class MainWindow :public wxFrame
 private:
 
 	DrawingPanel* drawingPanel = nullptr;
-	wxToolBar* toolBar;
+	wxToolBar* toolBar = nullptr;
 	wxStatusBar* statusBar = nullptr;
 	wxBoxSizer* _sizer = nullptr;
+	wxTimer* timer = nullptr;
 
 	std::vector<wxSize>_sizes;
 	std::vector<std::vector<bool>> gameBoard;
@@ -25,7 +26,9 @@ private:
 	int generationCount; 
 	int livingCellsCount;
 	int gridSize = 15;
+	int time;
 
+	void timerOn(wxTimerEvent& event); 
 	void initializeGrid();
 	void OnSizeChanged(wxSizeEvent& event);
 	void GenerationCount();
