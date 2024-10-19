@@ -12,22 +12,29 @@ class MainWindow :public wxFrame
 	~MainWindow();
 
 private:
-	void OnSizeChanged(wxSizeEvent& event);
+
+	DrawingPanel* drawingPanel = nullptr;
+	wxToolBar* toolBar;
 	wxStatusBar* statusBar = nullptr;
-	void initializeGrid();
-	void updateStatusBar() const;
+	wxBoxSizer* _sizer = nullptr;
+
 	std::vector<wxSize>_sizes;
 	std::vector<std::vector<bool>> gameBoard;
-	int gridSize = 15;
-	DrawingPanel* drawingPanel = nullptr;
+
+	int countLivingNeighbor(int neighborX, int neighborY) const;
 	int generationCount; 
-	int livingCellsCount; 
-	wxBoxSizer* _sizer = nullptr;
-	wxToolBar* toolBar;
+	int livingCellsCount;
+	int gridSize = 15;
+
+	void initializeGrid();
+	void OnSizeChanged(wxSizeEvent& event);
+	void GenerationCount();
+	void updateStatusBar() const;
 	void Play(wxCommandEvent& event);
 	void Pause(wxCommandEvent& event);
 	void Next(wxCommandEvent& event);
 	void Clear(wxCommandEvent& event);
+
 	wxDECLARE_EVENT_TABLE();
 	
 
