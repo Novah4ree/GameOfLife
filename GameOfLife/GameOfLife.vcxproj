@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="DrawingPanel.cpp" />
     <ClCompile Include="MainClass.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -139,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="Dialog.h" />
     <ClInclude Include="DrawingPanel.h" />
     <ClInclude Include="GameSettings.h" />
     <ClInclude Include="MainClass.h" />

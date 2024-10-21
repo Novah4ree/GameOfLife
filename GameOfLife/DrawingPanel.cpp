@@ -1,6 +1,7 @@
 #include "DrawingPanel.h"
 #include "wx/graphics.h"
 #include "wx/dcbuffer.h"
+#include "MainWindow.h"
 
 
 wxBEGIN_EVENT_TABLE(DrawingPanel, wxPanel)
@@ -12,7 +13,7 @@ EVT_LEFT_UP(DrawingPanel::OnMouseUp)
 wxEND_EVENT_TABLE()
 
 DrawingPanel::DrawingPanel(wxFrame* parent, std::vector<std::vector<bool>>&gameBoard) 
-	: wxPanel(parent), gameBoard(gameBoard), gridSize(15)
+	: wxPanel(parent), gameBoard(gameBoard), gridSize(15), _settings(nullptr)
 {
 
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -24,6 +25,11 @@ DrawingPanel::DrawingPanel(wxFrame* parent, std::vector<std::vector<bool>>&gameB
 }
 
 DrawingPanel::~DrawingPanel(){}
+
+void DrawingPanel::SetSettings(GameSettings* settings) {
+	_settings = settings;
+	
+}
 
 void DrawingPanel::OnPaint(wxPaintEvent& event)
 {
@@ -80,7 +86,7 @@ void DrawingPanel::SetSize(const wxSize &size)
 
 void DrawingPanel::setGridSize(int size)
 {
-	gridSize = size;
+	int gridSize = _settings->gridSize;
 	Refresh();
 }
 
