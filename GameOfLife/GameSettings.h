@@ -7,7 +7,7 @@ struct GameSettings {
 	unsigned int Blue = 255;
 	unsigned int Green = 255;
 	unsigned int Alpha = 255;
-
+	 
 	//colors for Living Cell
 	unsigned int livingCellRed = 128;
 	unsigned int livingCellGreen = 128;
@@ -19,8 +19,15 @@ struct GameSettings {
 	unsigned int deadCellGreen = 255;
 	unsigned int deadCellBlue = 255;
 	unsigned int deadCellAlpha = 255;
+
+	//extra --background color setup
+	unsigned int backgroundRed = 255;
+	unsigned int backgroundGreen = 255;
+	unsigned int backgroundBlue = 255;
+	unsigned int backgroundAlpha = 255;
+
 	//grid size
-	int gridSize = 15;
+	int gridSize = 100;
 	//interval
 	int interval = 50;
 
@@ -37,6 +44,11 @@ struct GameSettings {
 	//Methods to get wxColor for DCC
 	wxColor GetDeadCellColors() const {
 		return wxColor(deadCellRed, deadCellGreen, deadCellBlue, deadCellAlpha);
+	}
+
+	//getter for background color
+	wxColor GetBackgroundColor() const {
+		return wxColor(backgroundRed, backgroundBlue, backgroundGreen, backgroundAlpha);
 	}
 	// setters for Color
 	void SetColor(wxColor color) {
@@ -60,6 +72,14 @@ struct GameSettings {
 		deadCellGreen = color.GetGreen();
 		deadCellBlue = color.GetBlue();
 		deadCellAlpha = color.GetAlpha();
+	}
+	// extra setter for Background
+	void SetBackgroundColor(const wxColor& color) {
+		
+		backgroundRed = color.GetRed();
+		backgroundGreen = color.GetGreen();
+		backgroundBlue = color.GetBlue();
+		backgroundAlpha = color.GetAlpha();
 	}
 
 };

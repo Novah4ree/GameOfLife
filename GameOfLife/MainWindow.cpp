@@ -17,7 +17,8 @@ EVT_MENU(10001, MainWindow::Play)
 EVT_MENU(10002, MainWindow::Pause)
 EVT_MENU(10003, MainWindow::Next)
 EVT_MENU(10004, MainWindow::Clear)
-EVT_TIMER(10005, MainWindow::timerOn)
+EVT_MENU(10006, MainWindow::Settings)
+EVT_TIMER(10005, MainWindow::TimerOn)
 
 wxEND_EVENT_TABLE()
 
@@ -37,24 +38,35 @@ MainWindow::MainWindow()
 	initializeGrid();
 	this->Layout();
 
+	//Icons for Toolbar
 	wxBitmap playIcon(play_xpm);
 	wxBitmap pauseIcon(pause_xpm);
 	wxBitmap nextIcon(next_xpm);
 	wxBitmap trashIcon(trash_xpm);
-
+	//ToolBar created
 	toolBar = CreateToolBar();
-	toolBar->AddTool(TOOLBAR_PLAY_ICON, "Play", playIcon);
+	toolBar->AddTool(10001, "Play", playIcon);
 	toolBar->AddTool(10002, "Pause", pauseIcon);
 	toolBar->AddTool(10003, "Next", nextIcon);
 	toolBar->AddTool(10004, "Clear", trashIcon);
 	toolBar->Realize();
 
+	//Timer
 	timer = new wxTimer(this, 10005);
-	timer->Bind(wxEVT_TIMER, &MainWindow::timerOn, this);
+	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn, this);
 	Bind(wxEVT_SIZE, &MainWindow::OnSizeChanged, this);
 
 	SetSizer(_sizer);
+
+    //MenuBar
+	wxMenuBar* menuBar = new wxMenuBar();
+	wxMenu* optionsMenu = new wxMenu();
+	menuBar->Append(optionsMenu, "Options");
+	optionsMenu->Append(10006, "Settings");
+	SetMenuBar(menuBar);
+
 }
+//Resize 
 void MainWindow::OnSizeChanged(wxSizeEvent& event) {
 	wxSize newSize = event.GetSize();
 	drawingPanel->SetSize(event.GetSize());
@@ -62,6 +74,7 @@ void MainWindow::OnSizeChanged(wxSizeEvent& event) {
 
 	event.Skip();
 }
+//Grid
 void MainWindow::initializeGrid() {
 	gameBoard.resize(settings.gridSize);
 	for (int i = 0; i < settings.gridSize; ++i) {
@@ -70,6 +83,8 @@ void MainWindow::initializeGrid() {
 	}
 	drawingPanel->setGridSize(settings.gridSize);
 }
+
+//Status bar 
 void MainWindow::updateStatusBar() const
 {
 	wxString status = wxString::Format("Generation :   %d Living Cells : %d", generationCount, livingCellsCount);
@@ -100,6 +115,21 @@ void MainWindow::Clear(wxCommandEvent& event)
 	livingCellsCount = 0;
 	updateStatusBar(); 
 	drawingPanel->Refresh();
+}
+void MainWindow::Settings(wxCommandEvent& event)
+{
+	SettingsDialog* dialog = new SettingsDialog(this, &settings);
+	//opens SettingsDialog
+	if (dialog->ShowModal() == wxID_OK) { //check for ok
+		drawingPanel->SetSettings(&settings);
+		initializeGrid();
+		drawingPanel->SetBackgroundColour(settings.GetBackgroundColor());;
+
+		drawingPanel->Refresh();
+
+	}
+	delete dialog;
+
 }
 int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 	int LivingNeighbor = 0;
@@ -181,7 +211,7 @@ void MainWindow::OnPlayButtonClick(wxCommandEvent& event) {
 	delete dialog;
 }
 
-void MainWindow::timerOn(wxTimerEvent& event)
+void MainWindow::TimerOn(wxTimerEvent& event)
 {
 	NextGenerationCount();
 }

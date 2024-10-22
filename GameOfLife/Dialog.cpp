@@ -6,7 +6,7 @@ EVT_BUTTON(wxID_CANCEL, SettingsDialog::Cancel)
 wxEND_EVENT_TABLE()
 
 //Settings Dialog UI
-SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDialog(parent, wxID_ANY, "Settings", wxPoint(100,100), wxSize(200,200)), _settings(settings)
+SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDialog(parent, wxID_ANY, "Settings", wxPoint(100,150), wxSize(400,250)), _settings(settings)
 {    
 	//Spinner
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -83,6 +83,17 @@ SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDial
 
 	mainBoxSizer->Add(DeadCellColorSizer, 0, wxEXPAND | wxALL);
 
+	//background
+	wxBoxSizer* BackgroundColorSizer = new wxBoxSizer(wxHORIZONTAL);
+
+	BackgroundColorSizer->Add(new wxStaticText(this, wxID_ANY, "Background Color: "), 0, wxALL);
+
+	_BackgroundColorPick = new wxColourPickerCtrl(this, wxID_ANY, _settings->GetLivingCellColors());
+
+	BackgroundColorSizer->Add(_BackgroundColorPick, 1, wxALL);
+
+	mainBoxSizer->Add(BackgroundColorSizer, 0, wxEXPAND | wxALL);
+
 	//ok
 	mainBoxSizer->Add(CreateButtonSizer(wxOK));
 
@@ -94,8 +105,13 @@ SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDial
 }
 //Settings Dialog UI
 void SettingsDialog::Ok(wxCommandEvent& event)
-{
+{ // makes sure that any changes in grid size or color are visible after clicking ok from settings
 	_settings->gridSize = _gridSizeCtrl->GetValue();
+
+	_settings->gridSize = _intervalCtrl->GetValue();
+	_settings->SetLivingCellColor(_LivingCellColorsPick->GetColour());
+	_settings->SetDeadCellColor(_DeadCellColorsPick->GetColour());
+	_settings->SetBackgroundColor(_BackgroundColorPick->GetColour());
 	//close the dialog wit ok
 	EndModal(wxID_OK);
 }

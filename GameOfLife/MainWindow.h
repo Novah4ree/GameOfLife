@@ -13,14 +13,14 @@ class MainWindow :public wxFrame
 
 private:
 
-	wxToolBar* toolBar = nullptr;
+	wxToolBar* toolBar;
 	wxStatusBar* statusBar = nullptr;
 	wxBoxSizer* _sizer = nullptr;
 	DrawingPanel* drawingPanel = nullptr;
-	wxTimer* timer = nullptr;
+	wxTimer* timer ;
 	GameSettings settings;
 
-	std::vector<wxSize>_sizes;
+	
 	std::vector<std::vector<bool>> gameBoard;
 
 	int countLivingNeighbor(int neighborX, int neighborY) const;
@@ -30,7 +30,7 @@ private:
 	
 	void NextGenerationCount();
 	void OnPlayButtonClick(wxCommandEvent& event);
-	void timerOn(wxTimerEvent& event);
+	void TimerOn(wxTimerEvent& event);
 	void initializeGrid();
 	void OnSizeChanged(wxSizeEvent& event);
 	void updateStatusBar() const;
@@ -38,6 +38,8 @@ private:
 	void Pause(wxCommandEvent& event);
 	void Next(wxCommandEvent& event);
 	void Clear(wxCommandEvent& event);
+	void Settings(wxCommandEvent& event);
+
 
 	wxDECLARE_EVENT_TABLE();
 	

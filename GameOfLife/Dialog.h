@@ -14,10 +14,11 @@ private:
     wxSpinCtrl* _Spinner =  nullptr;
     wxSpinCtrl* _gridSizeCtrl = nullptr;
     wxSpinCtrl* _intervalCtrl = nullptr;
+  
     wxColourPickerCtrl* _ColorPick = nullptr;
     wxColourPickerCtrl* _LivingCellColorsPick = nullptr;
     wxColourPickerCtrl* _DeadCellColorsPick = nullptr;
-
+    wxColourPickerCtrl* _BackgroundColorPick = nullptr;
     void Ok(wxCommandEvent& event);
     void Cancel(wxCommandEvent& event);
 
