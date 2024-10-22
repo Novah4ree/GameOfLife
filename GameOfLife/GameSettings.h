@@ -1,5 +1,6 @@
 #pragma once
 #include <wx/colour.h>
+#include <fstream>
 
 struct GameSettings {
 	//colors
@@ -27,7 +28,7 @@ struct GameSettings {
 	unsigned int backgroundAlpha = 255;
 
 	//grid size
-	int gridSize = 100;
+	int gridSize = 15;
 	//interval
 	int interval = 50;
 
@@ -81,5 +82,19 @@ struct GameSettings {
 		backgroundBlue = color.GetBlue();
 		backgroundAlpha = color.GetAlpha();
 	}
+	void Save() const 
+	{ std::ofstream file("settings.bin", std::ios::out | std::ios::binary); 
+	 file.write((char*)this, sizeof(GameSettings));
+	 file.close();
 
+	}
+
+	void Load() 
+	{
+		std::ifstream file("settings.bin", std::ios::binary | std::ios::in);
+		if (file.is_open()) {
+			file.read((char*)this, sizeof(GameSettings));
+			file.close();
+		}
+	}
 };

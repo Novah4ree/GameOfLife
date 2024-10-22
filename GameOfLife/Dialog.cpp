@@ -6,7 +6,7 @@ EVT_BUTTON(wxID_CANCEL, SettingsDialog::Cancel)
 wxEND_EVENT_TABLE()
 
 //Settings Dialog UI
-SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDialog(parent, wxID_ANY, "Settings", wxPoint(100,150), wxSize(400,250)), _settings(settings)
+SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDialog(parent, wxID_ANY, "Settings", wxPoint(500,500), wxSize(400,250)), _settings(settings)
 {    
 	//Spinner
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -18,10 +18,10 @@ SettingsDialog::SettingsDialog(wxWindow *parent, GameSettings *settings): wxDial
 	_Spinner = new wxSpinCtrl(this, wxID_ANY);
 	_ColorPick = new wxColourPickerCtrl(this, wxID_ANY);
 	wxStaticText* spinnerLabel = new wxStaticText(this, wxID_ANY, "Number");
-	spinnerLabel->SetMinSize(wxSize(100, 50));
+	spinnerLabel->SetMinSize(wxSize(100, 150));
 
 	wxStaticText* ColorLabel = new wxStaticText(this, wxID_ANY, " Color");
-	ColorLabel->SetMinSize(wxSize(100, 50));
+	ColorLabel->SetMinSize(wxSize(100, 150));
 
 	SpinnerSizer->Add(spinnerLabel);
 	SpinnerSizer->Add(_Spinner);

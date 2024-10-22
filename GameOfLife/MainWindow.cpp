@@ -119,14 +119,30 @@ void MainWindow::Clear(wxCommandEvent& event)
 void MainWindow::Settings(wxCommandEvent& event)
 {
 	SettingsDialog* dialog = new SettingsDialog(this, &settings);
+	GameSettings oldSettings = settings;
+
 	//opens SettingsDialog
+
 	if (dialog->ShowModal() == wxID_OK) { //check for ok
 		drawingPanel->SetSettings(&settings);
+		
 		initializeGrid();
-		drawingPanel->SetBackgroundColour(settings.GetBackgroundColor());;
+		drawingPanel->SetBackgroundColour(settings.GetBackgroundColor());
+
 
 		drawingPanel->Refresh();
+		settings.Save();
 
+
+	}
+	else {
+		
+		settings = oldSettings;
+		drawingPanel->SetSettings(&settings);
+		initializeGrid();
+		updateStatusBar();
+		drawingPanel->SetBackgroundColour(settings.GetBackgroundColor());
+		drawingPanel->Refresh();
 	}
 	delete dialog;
 
@@ -172,7 +188,7 @@ void MainWindow::NextGenerationCount() {
 				}
 				else {
 					sandbox[row][col] = true;
-					++livingCellsCount;
+					++newLivingCellsCount;
 				}
 
 			}
@@ -180,7 +196,7 @@ void MainWindow::NextGenerationCount() {
 
 				if (LivingNeighbor == 3) {
 					sandbox[row][col] = true;
-					++livingCellsCount;
+					++newLivingCellsCount;
 				}
 				else {
 					sandbox[row][col] = false;
