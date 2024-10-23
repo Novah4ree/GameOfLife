@@ -20,7 +20,7 @@ private:
 	wxTimer* timer ;
 	GameSettings settings;
 
-	
+	std::vector<std::vector<int>> neighborCounts;
 	std::vector<std::vector<bool>> gameBoard;
 
 	int countLivingNeighbor(int neighborX, int neighborY) const;
@@ -39,8 +39,8 @@ private:
 	void Next(wxCommandEvent& event);
 	void Clear(wxCommandEvent& event);
 	void Settings(wxCommandEvent& event);
-
-
+	void OnNeighborCount(wxCommandEvent& event);
+	void OnShowNeighborCounts(wxCommandEvent& event);
 	wxDECLARE_EVENT_TABLE();
 	
 

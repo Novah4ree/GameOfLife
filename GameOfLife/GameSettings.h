@@ -29,11 +29,14 @@ struct GameSettings {
 
 	//grid size
 	int gridSize = 15;
+
 	//interval
 	int interval = 50;
 
-	//Methods to get wxColor
+	//show Neighbor count
+	bool NeighborCount = false;
 
+	//Methods to get wxColor
 	wxColor GetColor() {
 		wxColor color(Red, Green, Blue, Alpha);
 		return color;
@@ -41,6 +44,7 @@ struct GameSettings {
 	//Methods to get wxColor for LCC
 	wxColor GetLivingCellColors() const {
 		return wxColor(livingCellRed, livingCellGreen, livingCellBlue, livingCellAlpha);
+		
 	}
 	//Methods to get wxColor for DCC
 	wxColor GetDeadCellColors() const {

@@ -1,4 +1,4 @@
-#define TOOLBAR_PLAY_ICON 10001
+
 #include "Dialog.h"
 #include "GameSettings.h"
 #include "MainWindow.h"
@@ -18,6 +18,7 @@ EVT_MENU(10002, MainWindow::Pause)
 EVT_MENU(10003, MainWindow::Next)
 EVT_MENU(10004, MainWindow::Clear)
 EVT_MENU(10006, MainWindow::Settings)
+EVT_MENU(10007, MainWindow::OnNeighborCount)
 EVT_TIMER(10005, MainWindow::TimerOn)
 
 wxEND_EVENT_TABLE()
@@ -32,7 +33,8 @@ MainWindow::MainWindow()
 	drawingPanel = new DrawingPanel(this, gameBoard);
 	drawingPanel->SetSettings(&settings);
 	_sizer->Add(drawingPanel, 1, wxEXPAND | wxALL);
-	
+
+	//status Bar
 	statusBar = CreateStatusBar();
 	updateStatusBar();
 	initializeGrid();
@@ -55,15 +57,25 @@ MainWindow::MainWindow()
 	timer = new wxTimer(this, 10005);
 	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn, this);
 	Bind(wxEVT_SIZE, &MainWindow::OnSizeChanged, this);
-
+	Bind(wxEVT_MENU, &MainWindow::OnNeighborCount, this, 10007);
 	SetSizer(_sizer);
 
     //MenuBar
 	wxMenuBar* menuBar = new wxMenuBar();
 	wxMenu* optionsMenu = new wxMenu();
-	menuBar->Append(optionsMenu, "Options");
+	wxMenu* viewMenu = new wxMenu();
+
+	wxMenuItem* OnNeighborCountsItem = new wxMenuItem(viewMenu, 10007, "Neighbor Count", " ", wxITEM_CHECK);
+	
+	OnNeighborCountsItem-> SetCheckable(true);
+	viewMenu->Append(OnNeighborCountsItem);
+	menuBar->Append(viewMenu, "View");
 	optionsMenu->Append(10006, "Settings");
+	menuBar->Append(optionsMenu, "Options");
+
 	SetMenuBar(menuBar);
+
+
 
 }
 //Resize 
@@ -77,17 +89,20 @@ void MainWindow::OnSizeChanged(wxSizeEvent& event) {
 //Grid
 void MainWindow::initializeGrid() {
 	gameBoard.resize(settings.gridSize);
+	//store neighbor counts
+	neighborCounts.resize(settings.gridSize, std::vector<int>
+		(settings.gridSize, 0));
 	for (int i = 0; i < settings.gridSize; ++i) {
 		gameBoard[i].resize(settings.gridSize, false); // makes cells (dead)
 
 	}
-	drawingPanel->setGridSize(settings.gridSize);
+	drawingPanel->SetGridSize(settings.gridSize);
 }
 
 //Status bar 
 void MainWindow::updateStatusBar() const
 {
-	wxString status = wxString::Format("Generation :   %d Living Cells : %d", generationCount, livingCellsCount);
+	wxString status = wxString::Format("Generation : %d Living Cells : %d", generationCount, livingCellsCount);
 		statusBar->SetStatusText(status);
 }
 void MainWindow::Play(wxCommandEvent& event)
@@ -120,7 +135,7 @@ void MainWindow::Settings(wxCommandEvent& event)
 {
 	SettingsDialog* dialog = new SettingsDialog(this, &settings);
 	GameSettings oldSettings = settings;
-
+	
 	//opens SettingsDialog
 
 	if (dialog->ShowModal() == wxID_OK) { //check for ok
@@ -147,6 +162,15 @@ void MainWindow::Settings(wxCommandEvent& event)
 	delete dialog;
 
 }
+void MainWindow::OnNeighborCount(wxCommandEvent& event)
+{
+}
+void MainWindow::OnShowNeighborCounts(wxCommandEvent& event)
+{
+	bool showNeighborCounts = event.IsChecked();
+	drawingPanel->SetShowNeighbors(showNeighborCounts);
+	
+}
 int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 	int LivingNeighbor = 0;
 	for (int row = -1; row <= 1; row++) {
@@ -159,7 +183,7 @@ int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 			int newNeighborY = neighborY + col;
 			if (newNeighborX >= 0 && newNeighborX < settings.gridSize && newNeighborY >= 0 && newNeighborY < settings.gridSize) {
 
-				if (gameBoard[neighborX][neighborY]) {
+				if (gameBoard[newNeighborX][newNeighborY]) {
 
 					LivingNeighbor++;
 				}

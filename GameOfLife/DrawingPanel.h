@@ -10,16 +10,19 @@ public:
 	DrawingPanel(wxFrame* parent, std::vector<std::vector<bool>>&gameBoard);
 	~DrawingPanel();
 	void SetSettings(GameSettings* settings);
+	void SetShowNeighbors(bool show);
 	void OnPaint(wxPaintEvent& event);
+
 	void SetSize(const wxSize& size);
-	void setGridSize(int size);
+	void SetGridSize(int size);
 	void OnMouseUp(wxMouseEvent& event);
 	
-
 private:
+	bool showNeighbors;
 	GameSettings* _settings;
 	int gridSize;
 	std::vector<std::vector<bool>>&gameBoard;
+	std::vector<std::vector<int>>neighborCounts;
 	wxDECLARE_EVENT_TABLE();
 };
 
