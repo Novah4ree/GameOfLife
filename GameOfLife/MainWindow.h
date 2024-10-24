@@ -10,7 +10,7 @@ class MainWindow :public wxFrame
  public:
 	MainWindow();
 	~MainWindow();
-
+	void PopulateMatrix();
 private:
 
 	wxToolBar* toolBar;
@@ -19,14 +19,17 @@ private:
 	DrawingPanel* drawingPanel = nullptr;
 	wxTimer* timer ;
 	GameSettings settings;
-
+	int time;
+	
+	std::vector<std::vector<bool>> matrix;
 	std::vector<std::vector<int>> neighborCounts;
 	std::vector<std::vector<bool>> gameBoard;
-
+	
 	int countLivingNeighbor(int neighborX, int neighborY) const;
 	int generationCount; 
 	int livingCellsCount;
-	int time;
+	
+
 	
 	void NextGenerationCount();
 	void OnPlayButtonClick(wxCommandEvent& event);
@@ -34,6 +37,10 @@ private:
 	void initializeGrid();
 	void OnSizeChanged(wxSizeEvent& event);
 	void updateStatusBar() const;
+	
+	void RandomizeGrid(unsigned int seed);
+	void OnRandomize(wxCommandEvent& event);
+	void RandomizeWithSeed(wxCommandEvent& event);
 	void Play(wxCommandEvent& event);
 	void Pause(wxCommandEvent& event);
 	void Next(wxCommandEvent& event);

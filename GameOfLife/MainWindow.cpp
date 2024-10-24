@@ -9,6 +9,8 @@
 #include "trash.xpm"
 #include "Dialog.h"
 
+#include "wx/numdlg.h"
+#include <ctime>
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
@@ -19,7 +21,10 @@ EVT_MENU(10003, MainWindow::Next)
 EVT_MENU(10004, MainWindow::Clear)
 EVT_MENU(10006, MainWindow::Settings)
 EVT_MENU(10007, MainWindow::OnNeighborCount)
+EVT_MENU(10008, MainWindow::OnRandomize)
+EVT_MENU(10009, MainWindow::RandomizeWithSeed)
 EVT_TIMER(10005, MainWindow::TimerOn)
+
 
 wxEND_EVENT_TABLE()
 
@@ -33,9 +38,10 @@ MainWindow::MainWindow()
 	drawingPanel = new DrawingPanel(this, gameBoard);
 	drawingPanel->SetSettings(&settings);
 	_sizer->Add(drawingPanel, 1, wxEXPAND | wxALL);
-
+	
 	//status Bar
 	statusBar = CreateStatusBar();
+	statusBar->SetStatusText("Status Text");
 	updateStatusBar();
 	initializeGrid();
 	this->Layout();
@@ -45,37 +51,52 @@ MainWindow::MainWindow()
 	wxBitmap pauseIcon(pause_xpm);
 	wxBitmap nextIcon(next_xpm);
 	wxBitmap trashIcon(trash_xpm);
+	
+
+
 	//ToolBar created
-	toolBar = CreateToolBar();
+
+	wxToolBar* toolBar = CreateToolBar();
+	
 	toolBar->AddTool(10001, "Play", playIcon);
 	toolBar->AddTool(10002, "Pause", pauseIcon);
 	toolBar->AddTool(10003, "Next", nextIcon);
 	toolBar->AddTool(10004, "Clear", trashIcon);
+	
 	toolBar->Realize();
 
+	matrix.resize(30);
+	for (int i = 0; i < matrix.size(); i++) {
+		matrix[i].resize(30);
+	}
+
+	PopulateMatrix();
 	//Timer
 	timer = new wxTimer(this, 10005);
 	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn, this);
 	Bind(wxEVT_SIZE, &MainWindow::OnSizeChanged, this);
 	Bind(wxEVT_MENU, &MainWindow::OnNeighborCount, this, 10007);
+	Bind(wxEVT_MENU, &MainWindow::OnRandomize, this, 10008);
+	Bind(wxEVT_MENU, &MainWindow::RandomizeWithSeed, this, 10009);
 	SetSizer(_sizer);
 
-    //MenuBar
+	//MenuBar
 	wxMenuBar* menuBar = new wxMenuBar();
 	wxMenu* optionsMenu = new wxMenu();
 	wxMenu* viewMenu = new wxMenu();
 
+
 	wxMenuItem* OnNeighborCountsItem = new wxMenuItem(viewMenu, 10007, "Neighbor Count", " ", wxITEM_CHECK);
-	
-	OnNeighborCountsItem-> SetCheckable(true);
+
+	OnNeighborCountsItem->SetCheckable(true);
 	viewMenu->Append(OnNeighborCountsItem);
 	menuBar->Append(viewMenu, "View");
 	optionsMenu->Append(10006, "Settings");
-	menuBar->Append(optionsMenu, "Options");
+	optionsMenu->Append(10009, "Randomize with Seed");
+	optionsMenu->Append(10008, "Randomize");
+	menuBar->Append(optionsMenu, "&Options");
 
 	SetMenuBar(menuBar);
-
-
 
 }
 //Resize 
@@ -103,7 +124,30 @@ void MainWindow::initializeGrid() {
 void MainWindow::updateStatusBar() const
 {
 	wxString status = wxString::Format("Generation : %d Living Cells : %d", generationCount, livingCellsCount);
-		statusBar->SetStatusText(status);
+	statusBar->SetStatusText(status);
+}
+
+void MainWindow::OnRandomize(wxCommandEvent& event)
+{
+	RandomizeGrid((unsigned int)time_t(NULL));
+}
+void MainWindow::RandomizeWithSeed(wxCommandEvent& event)
+{
+	long seed = wxGetNumberFromUser("Enter seed number", "Seed:  ", "Randomize with Seed", 0, LONG_MIN, LONG_MAX, this);
+	if (seed != -1) {
+		RandomizeGrid(seed);
+	}
+
+}
+void MainWindow::RandomizeGrid(unsigned int seed)
+{
+	srand(seed);
+	for (int row = 0; row < settings.gridSize; ++row) {
+		for (int col = 0; col < settings.gridSize; ++col) {
+			gameBoard[row][col] = rand() % 3;
+		}
+	}
+	drawingPanel->Refresh();
 }
 void MainWindow::Play(wxCommandEvent& event)
 {
@@ -126,21 +170,22 @@ void MainWindow::Clear(wxCommandEvent& event)
 			gameBoard[row][col] = false;
 		}
 	}
-	generationCount = 0; 
+	generationCount = 0;
 	livingCellsCount = 0;
-	updateStatusBar(); 
+	updateStatusBar();
 	drawingPanel->Refresh();
 }
+
 void MainWindow::Settings(wxCommandEvent& event)
 {
 	SettingsDialog* dialog = new SettingsDialog(this, &settings);
 	GameSettings oldSettings = settings;
-	
+
 	//opens SettingsDialog
 
 	if (dialog->ShowModal() == wxID_OK) { //check for ok
 		drawingPanel->SetSettings(&settings);
-		
+
 		initializeGrid();
 		drawingPanel->SetBackgroundColour(settings.GetBackgroundColor());
 
@@ -151,7 +196,7 @@ void MainWindow::Settings(wxCommandEvent& event)
 
 	}
 	else {
-		
+
 		settings = oldSettings;
 		drawingPanel->SetSettings(&settings);
 		initializeGrid();
@@ -164,12 +209,14 @@ void MainWindow::Settings(wxCommandEvent& event)
 }
 void MainWindow::OnNeighborCount(wxCommandEvent& event)
 {
+
+
 }
 void MainWindow::OnShowNeighborCounts(wxCommandEvent& event)
 {
 	bool showNeighborCounts = event.IsChecked();
 	drawingPanel->SetShowNeighbors(showNeighborCounts);
-	
+
 }
 int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 	int LivingNeighbor = 0;
@@ -226,7 +273,7 @@ void MainWindow::NextGenerationCount() {
 					sandbox[row][col] = false;
 				}
 
-			}	
+			}
 		}
 	}
 
@@ -241,12 +288,31 @@ MainWindow::~MainWindow()
 {
 	delete timer;
 }
+void MainWindow::PopulateMatrix()
+{
+	unsigned int seed = (time_t(NULL));
+	srand(seed);
+
+	for (int row = 0; row < matrix.size(); row++) {
+		for (int col = 0; col < matrix[row].size(); col++) {
+			int num = rand();
+			if (num % 100 < 45) {
+				matrix[row][col] = true;
+			}
+			else {
+				matrix[row][col] = false;
+			}
+		}
+	}
+
+
+}
 void Layout()
 {
 }
 
 void MainWindow::OnPlayButtonClick(wxCommandEvent& event) {
-	SettingsDialog* dialog = new SettingsDialog (this, &settings);
+	SettingsDialog* dialog = new SettingsDialog(this, &settings);
 	dialog->ShowModal();
 	delete dialog;
 }
