@@ -13,7 +13,7 @@ EVT_LEFT_UP(DrawingPanel::OnMouseUp)
 wxEND_EVENT_TABLE()
 
 DrawingPanel::DrawingPanel(wxFrame* parent, std::vector<std::vector<bool>>& gameBoard)
-	: wxPanel(parent), gameBoard(gameBoard), gridSize(15), _settings(nullptr), showNeighbors(false)
+	: wxPanel(parent), gameBoard(gameBoard), gridSize(25), _settings(nullptr), showNeighbors(false)
 {
 
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -28,13 +28,14 @@ DrawingPanel::~DrawingPanel() {}
 
 void DrawingPanel::SetSettings(GameSettings* settings) {
 	_settings = settings;
-
+	
 }
 
 void DrawingPanel::SetShowNeighbors(bool show) {
 
 	showNeighbors = show;
 }
+
 void DrawingPanel::OnPaint(wxPaintEvent& event)
 {
 	wxAutoBufferedPaintDC dc(this);

@@ -7,10 +7,10 @@
 #include "pause.xpm"
 #include "next.xpm"
 #include "trash.xpm"
-#include "Dialog.h"
-
+//#include "Icon.xpm"
+#include "wx/filedlg.h"
 #include "wx/numdlg.h"
-#include <ctime>
+#include "wx/wx.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
@@ -24,7 +24,7 @@ EVT_MENU(10007, MainWindow::OnNeighborCount)
 EVT_MENU(10008, MainWindow::OnRandomize)
 EVT_MENU(10009, MainWindow::RandomizeWithSeed)
 EVT_TIMER(10005, MainWindow::TimerOn)
-
+//EVT_MENU(10010, MainWindow::Icon)
 
 wxEND_EVENT_TABLE()
 
@@ -40,6 +40,7 @@ MainWindow::MainWindow()
 	_sizer->Add(drawingPanel, 1, wxEXPAND | wxALL);
 	
 	//status Bar
+
 	statusBar = CreateStatusBar();
 	statusBar->SetStatusText("Status Text");
 	updateStatusBar();
@@ -51,13 +52,14 @@ MainWindow::MainWindow()
 	wxBitmap pauseIcon(pause_xpm);
 	wxBitmap nextIcon(next_xpm);
 	wxBitmap trashIcon(trash_xpm);
+	//wxBitmap iconIcon(Icon_xpm);
 	
-
+	
+	
 
 	//ToolBar created
-
 	wxToolBar* toolBar = CreateToolBar();
-	
+    //toolBar->AddTool(10010, "Test", Icon);
 	toolBar->AddTool(10001, "Play", playIcon);
 	toolBar->AddTool(10002, "Pause", pauseIcon);
 	toolBar->AddTool(10003, "Next", nextIcon);
@@ -78,13 +80,25 @@ MainWindow::MainWindow()
 	Bind(wxEVT_MENU, &MainWindow::OnNeighborCount, this, 10007);
 	Bind(wxEVT_MENU, &MainWindow::OnRandomize, this, 10008);
 	Bind(wxEVT_MENU, &MainWindow::RandomizeWithSeed, this, 10009);
+	Bind(wxEVT_MENU, &MainWindow::OnNew, this, wxID_NEW);
+	Bind(wxEVT_MENU, &MainWindow::OnOpen, this, wxID_OPEN);
+	Bind(wxEVT_MENU, &MainWindow::OnSave, this, wxID_SAVE);
+	Bind(wxEVT_MENU, &MainWindow::OnSaveAs, this, wxID_SAVEAS);
+	Bind(wxEVT_MENU, &MainWindow::OnExit, this, wxID_EXIT);
 	SetSizer(_sizer);
 
 	//MenuBar
 	wxMenuBar* menuBar = new wxMenuBar();
 	wxMenu* optionsMenu = new wxMenu();
 	wxMenu* viewMenu = new wxMenu();
-
+	wxMenu* fileMenu = new wxMenu();
+	
+	fileMenu->Append(wxID_OPEN,"New");
+	fileMenu->Append(wxID_SAVE, "Open");
+	fileMenu->Append(wxID_SAVEAS, "Save As");
+	fileMenu->Append(wxID_EXIT, "Exit");
+	menuBar->Append(fileMenu, "&File");
+	SetMenuBar(menuBar);
 
 	wxMenuItem* OnNeighborCountsItem = new wxMenuItem(viewMenu, 10007, "Neighbor Count", " ", wxITEM_CHECK);
 
@@ -96,7 +110,6 @@ MainWindow::MainWindow()
 	optionsMenu->Append(10008, "Randomize");
 	menuBar->Append(optionsMenu, "&Options");
 
-	SetMenuBar(menuBar);
 
 }
 //Resize 
@@ -127,6 +140,54 @@ void MainWindow::updateStatusBar() const
 	statusBar->SetStatusText(status);
 }
 
+void MainWindow::OnNew(wxCommandEvent& event)
+{
+	gameBoard.clear();
+	gameBoard.resize(gridSize, std::vector<bool>(gridSize, false));
+	saveFileName.clear();
+	drawingPanel->Refresh();
+
+}
+
+void MainWindow::OnOpen(wxCommandEvent& event)
+{
+	wxFileDialog
+		openFileDialog(this, _("Open .cells file"), "", "",
+			"Cells files (*.cells)|*.cells", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	LoadGameBoard(openFileDialog.GetPath());
+}
+
+void MainWindow::OnSave(wxCommandEvent& event)
+{
+	if (saveFileName.empty()) {
+		OnSaveAs(event);
+	}
+	else {
+		SaveGameBoard(saveFileName);
+	}
+}
+
+void MainWindow::OnSaveAs(wxCommandEvent& event)
+{
+	wxFileDialog
+		saveFileDialog(this, _("Save .cells file"), "", "",
+			"Cells files (*.cells)|*.cells", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (saveFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	saveFileDialog.GetPath();
+	SaveGameBoard(saveFileName);
+}
+
+void MainWindow::OnExit(wxCommandEvent& event)
+{
+
+	Close(true);
+}
+
 void MainWindow::OnRandomize(wxCommandEvent& event)
 {
 	RandomizeGrid((unsigned int)time_t(NULL));
@@ -149,6 +210,7 @@ void MainWindow::RandomizeGrid(unsigned int seed)
 	}
 	drawingPanel->Refresh();
 }
+
 void MainWindow::Play(wxCommandEvent& event)
 {
 	timer->Start(settings.interval);
@@ -240,6 +302,14 @@ int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 
 
 	return LivingNeighbor;
+}
+
+void MainWindow::LoadGameBoard(const wxString& filePath)
+{
+}
+
+void MainWindow::SaveGameBoard(const wxString& filePath)
+{
 }
 
 void MainWindow::NextGenerationCount() {

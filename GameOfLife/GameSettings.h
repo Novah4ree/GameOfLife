@@ -28,7 +28,7 @@ struct GameSettings {
 	unsigned int backgroundAlpha = 255;
 
 	//grid size
-	int gridSize = 15;
+	int gridSize = 25;
 
 	//interval
 	int interval = 50;
