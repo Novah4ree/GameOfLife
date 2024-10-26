@@ -28,13 +28,16 @@ struct GameSettings {
 	unsigned int backgroundAlpha = 255;
 
 	//grid size
-	int gridSize = 25;
+	int gridSize = 15;
 
 	//interval
 	int interval = 50;
 
 	//show Neighbor count
 	bool NeighborCount = false;
+	
+	std::string Universe = "Finite";
+
 
 	//Methods to get wxColor
 	wxColor GetColor() {

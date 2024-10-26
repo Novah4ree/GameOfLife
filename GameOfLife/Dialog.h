@@ -3,6 +3,7 @@
 #include <wx/spinctrl.h>
 #include <wx/clrpicker.h>
 #include "GameSettings.h"
+#include "MainWindow.h"
 
 class SettingsDialog : public wxDialog
 {

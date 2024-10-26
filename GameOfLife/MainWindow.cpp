@@ -19,11 +19,18 @@ EVT_MENU(10001, MainWindow::Play)
 EVT_MENU(10002, MainWindow::Pause)
 EVT_MENU(10003, MainWindow::Next)
 EVT_MENU(10004, MainWindow::Clear)
+EVT_TIMER(10005, MainWindow::TimerOn)
 EVT_MENU(10006, MainWindow::Settings)
 EVT_MENU(10007, MainWindow::OnNeighborCount)
 EVT_MENU(10008, MainWindow::OnRandomize)
 EVT_MENU(10009, MainWindow::RandomizeWithSeed)
-EVT_TIMER(10005, MainWindow::TimerOn)
+EVT_MENU(10010, MainWindow::OnNew)
+EVT_MENU(10011, MainWindow::OnOpen)
+EVT_MENU(10012, MainWindow::OnSave)
+EVT_MENU(10013, MainWindow::OnSaveAs)
+EVT_MENU(10014, MainWindow::OnExit)
+EVT_MENU(10015, MainWindow::OnFinite)
+EVT_MENU(10016, MainWindow::OnToroidal)
 //EVT_MENU(10010, MainWindow::Icon)
 
 wxEND_EVENT_TABLE()
@@ -33,7 +40,7 @@ MainWindow::MainWindow()
 	: wxFrame(nullptr, wxID_ANY, "Game of Life", wxPoint(100, 100), wxSize(500, 500)), generationCount(0), livingCellsCount(0), time(50) {
 
 
-
+	settings.Load();
 	_sizer = new wxBoxSizer(wxVERTICAL);
 	drawingPanel = new DrawingPanel(this, gameBoard);
 	drawingPanel->SetSettings(&settings);
@@ -54,9 +61,6 @@ MainWindow::MainWindow()
 	wxBitmap trashIcon(trash_xpm);
 	//wxBitmap iconIcon(Icon_xpm);
 	
-	
-	
-
 	//ToolBar created
 	wxToolBar* toolBar = CreateToolBar();
     //toolBar->AddTool(10010, "Test", Icon);
@@ -64,8 +68,21 @@ MainWindow::MainWindow()
 	toolBar->AddTool(10002, "Pause", pauseIcon);
 	toolBar->AddTool(10003, "Next", nextIcon);
 	toolBar->AddTool(10004, "Clear", trashIcon);
-	
 	toolBar->Realize();
+	//Timer
+	timer = new wxTimer(this, 10005);
+	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn,this);
+	Bind(wxEVT_SIZE, &MainWindow::OnSizeChanged, this);
+	Bind(wxEVT_MENU, &MainWindow::OnNeighborCount, this, 10007);
+	Bind(wxEVT_MENU, &MainWindow::OnRandomize, this, 10008);
+	Bind(wxEVT_MENU, &MainWindow::RandomizeWithSeed, this, 10009);
+	Bind(wxEVT_MENU, &MainWindow::OnNew, this, 10010);
+	Bind(wxEVT_MENU, &MainWindow::OnOpen, this, 10011);
+	Bind(wxEVT_MENU, &MainWindow::OnSave, this, 10012);
+	Bind(wxEVT_MENU, &MainWindow::OnSaveAs, this, 10013);
+	Bind(wxEVT_MENU, &MainWindow::OnExit, this, 10014);
+	Bind(wxEVT_MENU, &MainWindow::OnFinite, this, 10015);
+	Bind(wxEVT_MENU, &MainWindow::OnToroidal, this, 10016);
 
 	matrix.resize(30);
 	for (int i = 0; i < matrix.size(); i++) {
@@ -73,18 +90,6 @@ MainWindow::MainWindow()
 	}
 
 	PopulateMatrix();
-	//Timer
-	timer = new wxTimer(this, 10005);
-	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn, this);
-	Bind(wxEVT_SIZE, &MainWindow::OnSizeChanged, this);
-	Bind(wxEVT_MENU, &MainWindow::OnNeighborCount, this, 10007);
-	Bind(wxEVT_MENU, &MainWindow::OnRandomize, this, 10008);
-	Bind(wxEVT_MENU, &MainWindow::RandomizeWithSeed, this, 10009);
-	Bind(wxEVT_MENU, &MainWindow::OnNew, this, wxID_NEW);
-	Bind(wxEVT_MENU, &MainWindow::OnOpen, this, wxID_OPEN);
-	Bind(wxEVT_MENU, &MainWindow::OnSave, this, wxID_SAVE);
-	Bind(wxEVT_MENU, &MainWindow::OnSaveAs, this, wxID_SAVEAS);
-	Bind(wxEVT_MENU, &MainWindow::OnExit, this, wxID_EXIT);
 	SetSizer(_sizer);
 
 	//MenuBar
@@ -92,24 +97,33 @@ MainWindow::MainWindow()
 	wxMenu* optionsMenu = new wxMenu();
 	wxMenu* viewMenu = new wxMenu();
 	wxMenu* fileMenu = new wxMenu();
-	
-	fileMenu->Append(wxID_OPEN,"New");
-	fileMenu->Append(wxID_SAVE, "Open");
-	fileMenu->Append(wxID_SAVEAS, "Save As");
-	fileMenu->Append(wxID_EXIT, "Exit");
 	menuBar->Append(fileMenu, "&File");
-	SetMenuBar(menuBar);
+	
+	fileMenu->Append(10010,"New");
+	fileMenu->Append(10011, "Open");
+	fileMenu->Append(10012, "Save As");
+	fileMenu->Append(10013, "Exit");
 
 	wxMenuItem* OnNeighborCountsItem = new wxMenuItem(viewMenu, 10007, "Neighbor Count", " ", wxITEM_CHECK);
+	wxMenuItem* FiniteItem = new wxMenuItem(viewMenu, 10015, "Finite", " ", wxITEM_CHECK);
+	wxMenuItem* ToroidalItem = new wxMenuItem(viewMenu, 10016, "Toroidal", " ", wxITEM_CHECK);
 
+	FiniteItem->SetCheckable(true);
+	ToroidalItem->SetCheckable(true);
 	OnNeighborCountsItem->SetCheckable(true);
+	viewMenu->Append(FiniteItem);
+	viewMenu->Append(ToroidalItem);
 	viewMenu->Append(OnNeighborCountsItem);
-	menuBar->Append(viewMenu, "View");
+
 	optionsMenu->Append(10006, "Settings");
 	optionsMenu->Append(10009, "Randomize with Seed");
 	optionsMenu->Append(10008, "Randomize");
-	menuBar->Append(optionsMenu, "&Options");
+	menuBar->Append(optionsMenu, "Options");
+	menuBar->Append(viewMenu, "View");
 
+	SetMenuBar(menuBar);
+	FiniteItem->Check(true);
+	ToroidalItem->Check(false);
 
 }
 //Resize 
@@ -140,54 +154,6 @@ void MainWindow::updateStatusBar() const
 	statusBar->SetStatusText(status);
 }
 
-void MainWindow::OnNew(wxCommandEvent& event)
-{
-	gameBoard.clear();
-	gameBoard.resize(gridSize, std::vector<bool>(gridSize, false));
-	saveFileName.clear();
-	drawingPanel->Refresh();
-
-}
-
-void MainWindow::OnOpen(wxCommandEvent& event)
-{
-	wxFileDialog
-		openFileDialog(this, _("Open .cells file"), "", "",
-			"Cells files (*.cells)|*.cells", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_CANCEL)
-		return;
-
-	LoadGameBoard(openFileDialog.GetPath());
-}
-
-void MainWindow::OnSave(wxCommandEvent& event)
-{
-	if (saveFileName.empty()) {
-		OnSaveAs(event);
-	}
-	else {
-		SaveGameBoard(saveFileName);
-	}
-}
-
-void MainWindow::OnSaveAs(wxCommandEvent& event)
-{
-	wxFileDialog
-		saveFileDialog(this, _("Save .cells file"), "", "",
-			"Cells files (*.cells)|*.cells", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-	if (saveFileDialog.ShowModal() == wxID_CANCEL)
-		return;
-
-	saveFileDialog.GetPath();
-	SaveGameBoard(saveFileName);
-}
-
-void MainWindow::OnExit(wxCommandEvent& event)
-{
-
-	Close(true);
-}
-
 void MainWindow::OnRandomize(wxCommandEvent& event)
 {
 	RandomizeGrid((unsigned int)time_t(NULL));
@@ -205,7 +171,7 @@ void MainWindow::RandomizeGrid(unsigned int seed)
 	srand(seed);
 	for (int row = 0; row < settings.gridSize; ++row) {
 		for (int col = 0; col < settings.gridSize; ++col) {
-			gameBoard[row][col] = rand() % 3;
+			gameBoard[row][col] = rand() % 2 == 0;
 		}
 	}
 	drawingPanel->Refresh();
@@ -237,6 +203,11 @@ void MainWindow::Clear(wxCommandEvent& event)
 	updateStatusBar();
 	drawingPanel->Refresh();
 }
+void MainWindow::OnPlayButtonClick(wxCommandEvent& event) {
+	SettingsDialog* dialog = new SettingsDialog(this, &settings);
+	dialog->ShowModal();
+	delete dialog;
+}
 
 void MainWindow::Settings(wxCommandEvent& event)
 {
@@ -264,22 +235,20 @@ void MainWindow::Settings(wxCommandEvent& event)
 		initializeGrid();
 		updateStatusBar();
 		drawingPanel->SetBackgroundColour(settings.GetBackgroundColor());
+		settings.Load();
 		drawingPanel->Refresh();
 	}
 	delete dialog;
 
 }
-void MainWindow::OnNeighborCount(wxCommandEvent& event)
-{
-
-
-}
 void MainWindow::OnShowNeighborCounts(wxCommandEvent& event)
 {
+	settings.Load();
 	bool showNeighborCounts = event.IsChecked();
 	drawingPanel->SetShowNeighbors(showNeighborCounts);
-
+	settings.Save();
 }
+
 int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 	int LivingNeighbor = 0;
 	for (int row = -1; row <= 1; row++) {
@@ -290,6 +259,11 @@ int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 				continue;
 			int newNeighborX = neighborX + row;
 			int newNeighborY = neighborY + col;
+			if (settings.Universe == "Toroidal") {
+				newNeighborX = (newNeighborX + settings.gridSize) % settings.gridSize;
+				newNeighborY = (newNeighborY + settings.gridSize) % settings.gridSize;
+	
+			}
 			if (newNeighborX >= 0 && newNeighborX < settings.gridSize && newNeighborY >= 0 && newNeighborY < settings.gridSize) {
 
 				if (gameBoard[newNeighborX][newNeighborY]) {
@@ -302,6 +276,23 @@ int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 
 
 	return LivingNeighbor;
+}
+void MainWindow::OnNeighborCount(wxCommandEvent& event)
+{
+	settings.Load();
+	bool showNeightborCounts = event.IsChecked();
+	drawingPanel->SetShowNeighbors(showNeightborCounts);
+	settings.Save();
+	if (showNeightborCounts) {
+		for (int row = 0; row < settings.gridSize; row++) {
+			for (int col = 0; col < settings.gridSize; col++) {
+				neighborCounts[row][col] = countLivingNeighbor(row, col);
+			}
+
+		}
+	}
+
+	drawingPanel->Refresh();
 }
 
 void MainWindow::LoadGameBoard(const wxString& filePath)
@@ -380,14 +371,88 @@ void MainWindow::PopulateMatrix()
 void Layout()
 {
 }
-
-void MainWindow::OnPlayButtonClick(wxCommandEvent& event) {
-	SettingsDialog* dialog = new SettingsDialog(this, &settings);
-	dialog->ShowModal();
-	delete dialog;
+bool MainWindow::isToroidal() const
+{
+	return settings.Universe == "Toroidal";
 }
+void MainWindow::SetToroidal(bool toroidal)
+{
+	if (toroidal) {
+		settings.Universe = "Toroidal";
+	}
+	else {
+		settings.Universe = "Finite";
+	}
+	settings.Save();
+}
+
+void MainWindow::OnFinite(wxCommandEvent& event)
+{
+	FiniteItem->Check(true);
+	ToroidalItem->Check(false);
+	settings.Universe = "Finite";
+	settings.Save();
+}
+
+void MainWindow::OnToroidal(wxCommandEvent& event)
+{
+	FiniteItem->Check(false);
+	ToroidalItem->Check(true);
+	settings.Universe = "Toroidal";
+	settings.Save();
+}
+
 
 void MainWindow::TimerOn(wxTimerEvent& event)
 {
 	NextGenerationCount();
+}
+
+
+void MainWindow::OnNew(wxCommandEvent& event)
+{
+	gameBoard.clear();
+	gameBoard.resize(gridSize, std::vector<bool>(gridSize, false));
+	saveFileName.clear();
+	drawingPanel->Refresh();
+
+}
+
+void MainWindow::OnOpen(wxCommandEvent& event)
+{
+	wxFileDialog
+		openFileDialog(this, _("Open .cells file"), "", "",
+			"Cells files (*.cells)|*.cells", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	LoadGameBoard(openFileDialog.GetPath());
+}
+
+void MainWindow::OnSave(wxCommandEvent& event)
+{
+	if (saveFileName.empty()) {
+		OnSaveAs(event);
+	}
+	else {
+		SaveGameBoard(saveFileName);
+	}
+}
+
+void MainWindow::OnSaveAs(wxCommandEvent& event)
+{
+	wxFileDialog
+		saveFileDialog(this, _("Save .cells file"), "", "",
+			"Cells files (*.cells)|*.cells", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (saveFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	saveFileDialog.GetPath();
+	SaveGameBoard(saveFileName);
+}
+
+void MainWindow::OnExit(wxCommandEvent& event)
+{
+
+	Close(true);
 }

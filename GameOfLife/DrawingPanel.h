@@ -13,7 +13,6 @@ public:
 	void SetShowNeighbors(bool show);
 	void OnPaint(wxPaintEvent& event);
 
-	void SetSize(const wxSize& size);
 	void SetGridSize(int size);
 	void OnMouseUp(wxMouseEvent& event);
 	

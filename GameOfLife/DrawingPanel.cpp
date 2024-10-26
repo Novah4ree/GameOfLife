@@ -28,7 +28,7 @@ DrawingPanel::~DrawingPanel() {}
 
 void DrawingPanel::SetSettings(GameSettings* settings) {
 	_settings = settings;
-	
+
 }
 
 void DrawingPanel::SetShowNeighbors(bool show) {
@@ -68,47 +68,42 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 			float x = col * cellWidth;
 			float y = row * cellHeight;
 			if (gameBoard[row][col]) {
-				context->SetBrush(*wxLIGHT_GREY);
+				context->SetBrush(*wxLIGHT_GREY_BRUSH);
 			}
 			else {
-				context->SetBrush(*wxWHITE);
+				context->SetBrush(*wxWHITE_BRUSH);
 			}
 
 			context->DrawRectangle(x, y, cellWidth, cellHeight);
 
-			context->SetFont(wxFontInfo(16), *wxRED);
-			for (int x = 0; x < gridSize; ++x) {
 
-				for (int y = 0; y < gridSize; ++y) {
-					if (showNeighbors) {
-						int neighborCount = neighborCounts[row][col];
+			if (showNeighbors) {
+				int neighborCount = neighborCounts[row][col];
 
-						if (neighborCount > 0) {
-							wxString text = wxString::Format("% d", neighborCount);
-							double textWidth, textHeight;
-							context->GetTextExtent(text, &textWidth, &textHeight);
-							context->DrawText(text, x * cellWidth + (cellWidth - textWidth) / 2, y * cellHeight + (cellHeight - textHeight) / 2);
+				if (neighborCount > 0) {
+					wxString text = wxString::Format("% d", neighborCount);
+					double textWidth, textHeight;
+					context->GetTextExtent(text, &textWidth, &textHeight);
+					context->SetFont(wxFontInfo(16), *wxRED);
+					context->DrawText(text, x + (cellWidth - textWidth) / 2, y + cellHeight + (cellHeight - textHeight) / 2);
 
-						}
-					}
 				}
 			}
+
+
 		}
 	}
 
-	// CLean up
+	// Clean up
 	delete context;
 
 }
-void DrawingPanel::SetSize(const wxSize& size)
-{
-	wxPanel::SetSize(size);
 
-}
+
 
 void DrawingPanel::SetGridSize(int size)
 {
-	int gridSize = size;
+	gridSize = size;
 	Refresh();
 }
 
