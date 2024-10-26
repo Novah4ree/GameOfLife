@@ -31,6 +31,8 @@ EVT_MENU(10013, MainWindow::OnSaveAs)
 EVT_MENU(10014, MainWindow::OnExit)
 EVT_MENU(10015, MainWindow::OnFinite)
 EVT_MENU(10016, MainWindow::OnToroidal)
+EVT_MENU(10017, MainWindow::OnResetSettings)
+
 //EVT_MENU(10010, MainWindow::Icon)
 
 wxEND_EVENT_TABLE()
@@ -45,7 +47,7 @@ MainWindow::MainWindow()
 	drawingPanel = new DrawingPanel(this, gameBoard);
 	drawingPanel->SetSettings(&settings);
 	_sizer->Add(drawingPanel, 1, wxEXPAND | wxALL);
-	
+
 	//status Bar
 
 	statusBar = CreateStatusBar();
@@ -60,10 +62,10 @@ MainWindow::MainWindow()
 	wxBitmap nextIcon(next_xpm);
 	wxBitmap trashIcon(trash_xpm);
 	//wxBitmap iconIcon(Icon_xpm);
-	
+
 	//ToolBar created
 	wxToolBar* toolBar = CreateToolBar();
-    //toolBar->AddTool(10010, "Test", Icon);
+	//toolBar->AddTool(10010, "Test", Icon);
 	toolBar->AddTool(10001, "Play", playIcon);
 	toolBar->AddTool(10002, "Pause", pauseIcon);
 	toolBar->AddTool(10003, "Next", nextIcon);
@@ -71,7 +73,7 @@ MainWindow::MainWindow()
 	toolBar->Realize();
 	//Timer
 	timer = new wxTimer(this, 10005);
-	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn,this);
+	timer->Bind(wxEVT_TIMER, &MainWindow::TimerOn, this);
 	Bind(wxEVT_SIZE, &MainWindow::OnSizeChanged, this);
 	Bind(wxEVT_MENU, &MainWindow::OnNeighborCount, this, 10007);
 	Bind(wxEVT_MENU, &MainWindow::OnRandomize, this, 10008);
@@ -83,6 +85,7 @@ MainWindow::MainWindow()
 	Bind(wxEVT_MENU, &MainWindow::OnExit, this, 10014);
 	Bind(wxEVT_MENU, &MainWindow::OnFinite, this, 10015);
 	Bind(wxEVT_MENU, &MainWindow::OnToroidal, this, 10016);
+	Bind(wxEVT_MENU, &MainWindow::OnResetSettings, this, 10017);
 
 	matrix.resize(30);
 	for (int i = 0; i < matrix.size(); i++) {
@@ -98,8 +101,8 @@ MainWindow::MainWindow()
 	wxMenu* viewMenu = new wxMenu();
 	wxMenu* fileMenu = new wxMenu();
 	menuBar->Append(fileMenu, "&File");
-	
-	fileMenu->Append(10010,"New");
+
+	fileMenu->Append(10010, "New");
 	fileMenu->Append(10011, "Open");
 	fileMenu->Append(10012, "Save As");
 	fileMenu->Append(10013, "Exit");
@@ -118,12 +121,22 @@ MainWindow::MainWindow()
 	optionsMenu->Append(10006, "Settings");
 	optionsMenu->Append(10009, "Randomize with Seed");
 	optionsMenu->Append(10008, "Randomize");
+	optionsMenu->Append(10017, "Reset Settings");
 	menuBar->Append(optionsMenu, "Options");
 	menuBar->Append(viewMenu, "View");
 
 	SetMenuBar(menuBar);
 	FiniteItem->Check(true);
 	ToroidalItem->Check(false);
+
+}
+
+void MainWindow::OnResetSettings(wxCommandEvent& event)
+{
+	settings.ResetSettingsDefault();
+	drawingPanel->SetSettings(&settings);
+	Refresh();
+
 
 }
 //Resize 
@@ -262,7 +275,7 @@ int MainWindow::countLivingNeighbor(int neighborX, int neighborY) const {
 			if (settings.Universe == "Toroidal") {
 				newNeighborX = (newNeighborX + settings.gridSize) % settings.gridSize;
 				newNeighborY = (newNeighborY + settings.gridSize) % settings.gridSize;
-	
+
 			}
 			if (newNeighborX >= 0 && newNeighborX < settings.gridSize && newNeighborY >= 0 && newNeighborY < settings.gridSize) {
 
@@ -295,6 +308,61 @@ void MainWindow::OnNeighborCount(wxCommandEvent& event)
 	drawingPanel->Refresh();
 }
 
+void MainWindow::OnImport(wxCommandEvent& event)
+{
+	wxFileDialog openDialog(this, "Import Pattern", "", "", "Life Pattern files (*.lif)|*.lif", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+	if (openDialog.ShowModal() == wxID_CANCEL) return;
+
+	std::ifstream file(openDialog.GetPath().ToStdString());
+	if (!file.is_open()) return;
+
+	std::vector<std::vector<bool>> importedPattern;
+	std::string line;
+
+	while (std::getline(file, line)) {
+		if (line.empty() || line[0] == '!') continue;
+
+		std::vector<bool> row;
+		for (size_t i = 0; i < line.length(); i++) {
+			row.push_back(line[i] == '*');
+		}
+		importedPattern.push_back(row);
+	}
+	file.close();
+
+	// centering
+	int patternHeight = importedPattern.size();
+	int patternWidth = patternHeight > 0 ? importedPattern[0].size() : 0;
+
+	int startY = (settings.gridSize - patternHeight) / 2;
+	int startX = (settings.gridSize - patternWidth) / 2;
+	 
+	for (size_t row = 0; row < gameBoard.size(); ++row) {
+		for (size_t col = 0; col < gameBoard[row].size(); ++col) {
+			gameBoard[row][col] = false;
+		}
+	}
+
+	
+
+	// Import pattern at centered position
+	for (int row = 0; row < patternHeight; ++row) {
+		for (int col = 0; col < patternWidth; ++col) {
+			int gridY = startY + row;
+			int gridX = startX + col;
+
+			if (gridY >= 0 && gridY < settings.gridSize &&
+				gridX >= 0 && gridX < settings.gridSize) {
+				gameBoard[gridY][gridX] = importedPattern[row][col];
+			}
+		}
+	}
+
+
+	Refresh();
+}
+
 void MainWindow::LoadGameBoard(const wxString& filePath)
 {
 }
@@ -314,11 +382,12 @@ void MainWindow::NextGenerationCount() {
 
 			if (gameBoard[row][col]) {
 
-				if (LivingNeighbor < 2 || LivingNeighbor > 3) {
+				if (LivingNeighbor == 2 || LivingNeighbor == 3) {
 					sandbox[row][col] = false;
 
 				}
 				else {
+					if (LivingNeighbor == 3);
 					sandbox[row][col] = true;
 					++newLivingCellsCount;
 				}

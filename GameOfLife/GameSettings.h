@@ -104,4 +104,26 @@ struct GameSettings {
 			file.close();
 		}
 	}
+
+	void ResetSettingsDefault() {
+		livingCellRed = 128;
+		livingCellGreen = 128;
+		livingCellBlue = 128;
+		livingCellAlpha = 255;
+
+		deadCellRed = 255;
+		deadCellGreen = 255;
+		deadCellBlue = 255;
+		deadCellAlpha = 255;
+
+		gridSize = 15;
+		interval = 50;
+		bool NeighborCount = false;
+		Universe = "Finite";
+
+		Save();
+
+
+
+	}
 };

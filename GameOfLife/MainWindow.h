@@ -40,7 +40,7 @@ private:
 	int gridSize;
 	wxString saveFileName;
 	
-
+	void OnImport(wxCommandEvent& event);
 	void LoadGameBoard(const wxString& filePath);
 	void SaveGameBoard(const wxString& filePath);
 	void NextGenerationCount();
@@ -49,7 +49,7 @@ private:
 	void updateStatusBar() const;
 	void RandomizeGrid(unsigned int seed);
 
-
+	void OnResetSettings(wxCommandEvent& event);
 	void OnSizeChanged(wxSizeEvent& event);
 	void OnFinite(wxCommandEvent& event);
 	void OnToroidal(wxCommandEvent& event);
